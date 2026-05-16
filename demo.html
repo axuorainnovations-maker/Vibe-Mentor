@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AxuoraLearn — Vibe Learning Demo</title>
+  <style>
+    :root {
+      --primary: #6C3FE8;
+      --primary-light: #8B5CF6;
+      --primary-dark: #4C2DB0;
+      --accent: #F59E0B;
+      --accent-green: #10B981;
+      --accent-blue: #3B82F6;
+      --bg: #0F0F1A;
+      --bg2: #161625;
+      --bg3: #1E1E35;
+      --border: rgba(108,63,232,0.25);
+      --text: #E8E8F0;
+      --text-muted: #8888AA;
+      --ai-bubble: #1A1A3A;
+      --user-bubble: #2D1B69;
+      --success: #10B981;
+      --warning: #F59E0B;
+      --gold: #FFD700;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── SCREENS ── */
+    .screen { display: none; width: 100%; height: 100%; flex-direction: column; }
+    .screen.active { display: flex; }
+
+    /* ── SPLASH ── */
+    #splash {
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(ellipse at 50% 40%, #2D1B6930 0%, var(--bg) 70%);
+      gap: 28px;
+      animation: fadeIn 0.6s ease;
+    }
+    .logo-block { text-align: center; }
+    .logo-block .wordmark { font-size: 3rem; font-weight: 800; letter-spacing: -1px;
+      background: linear-gradient(135deg, #A78BFA, #6C3FE8, #3B82F6);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .logo-block .tagline { font-size: 1rem; color: var(--text-muted); margin-top: 6px; letter-spacing: 0.5px; }
+    .logo-block .sub { font-size: 0.85rem; color: var(--primary-light); margin-top: 4px; opacity: 0.8; }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: #fff; border: none; padding: 14px 40px; border-radius: 50px;
+      font-size: 1rem; font-weight: 600; cursor: pointer;
+      box-shadow: 0 4px 24px rgba(108,63,232,0.4);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(108,63,232,0.55); }
+
+    .feature-pills { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+    .pill {
+      padding: 6px 16px; border-radius: 20px; font-size: 0.78rem; font-weight: 600;
+      border: 1px solid var(--border); color: var(--primary-light); background: rgba(108,63,232,0.08);
+    }
+
+    /* ── CHAT SCREEN ── */
+    #chat {
+      flex-direction: column;
+      background: var(--bg);
+    }
+
+    .chat-header {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 20px; border-bottom: 1px solid var(--border);
+      background: var(--bg2);
+    }
+    .chat-header .brand { font-weight: 800; font-size: 1.1rem;
+      background: linear-gradient(135deg, #A78BFA, #6C3FE8);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .chat-header .step-badge {
+      margin-left: auto; font-size: 0.72rem; color: var(--text-muted);
+      background: var(--bg3); padding: 4px 12px; border-radius: 12px; border: 1px solid var(--border);
+    }
+
+    .progress-bar { height: 3px; background: var(--bg3); }
+    .progress-fill {
+      height: 100%; background: linear-gradient(90deg, var(--primary), var(--primary-light));
+      transition: width 0.6s ease; width: 0%;
+    }
+
+    .messages {
+      flex: 1; overflow-y: auto; padding: 20px;
+      display: flex; flex-direction: column; gap: 14px;
+      scroll-behavior: smooth;
+    }
+    .messages::-webkit-scrollbar { width: 4px; }
+    .messages::-webkit-scrollbar-track { background: transparent; }
+    .messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    .msg { display: flex; gap: 10px; align-items: flex-end; animation: slideUp 0.3s ease; }
+    .msg.user { flex-direction: row-reverse; }
+
+    .avatar {
+      width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700;
+    }
+    .avatar.ai { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: #fff; }
+    .avatar.user { background: linear-gradient(135deg, #1E3A5F, #2563EB); color: #fff; }
+
+    .bubble {
+      max-width: 72%; padding: 12px 16px; border-radius: 18px; font-size: 0.9rem; line-height: 1.6;
+    }
+    .msg.ai .bubble { background: var(--ai-bubble); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+    .msg.user .bubble { background: var(--user-bubble); border: 1px solid rgba(108,63,232,0.4); border-bottom-right-radius: 4px; }
+
+    .bubble strong { color: var(--primary-light); }
+    .bubble .highlight { color: var(--accent); font-weight: 600; }
+    .bubble .tool-tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: rgba(108,63,232,0.2); border: 1px solid rgba(108,63,232,0.4);
+      padding: 2px 8px; border-radius: 10px; font-size: 0.78rem; color: var(--primary-light); margin: 2px;
+    }
+
+    .typing-indicator { display: flex; gap: 5px; align-items: center; padding: 14px 16px; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text-muted); animation: bounce 1.2s infinite; }
+    .dot:nth-child(2) { animation-delay: 0.2s; }
+    .dot:nth-child(3) { animation-delay: 0.4s; }
+
+    .chat-input-area {
+      padding: 16px 20px; border-top: 1px solid var(--border);
+      background: var(--bg2); display: flex; gap: 10px; align-items: center;
+    }
+    .chat-input-area input {
+      flex: 1; background: var(--bg3); border: 1px solid var(--border);
+      color: var(--text); padding: 12px 16px; border-radius: 50px; font-size: 0.9rem;
+      outline: none; transition: border-color 0.2s;
+    }
+    .chat-input-area input:focus { border-color: var(--primary-light); }
+    .chat-input-area button {
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: #fff; border: none; width: 42px; height: 42px; border-radius: 50%;
+      cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center;
+      transition: transform 0.15s;
+    }
+    .chat-input-area button:hover { transform: scale(1.08); }
+    .chat-input-area button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    /* Quick replies */
+    .quick-replies { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+    .qr-btn {
+      padding: 7px 14px; border-radius: 20px; font-size: 0.8rem; cursor: pointer;
+      border: 1px solid var(--primary-light); color: var(--primary-light);
+      background: rgba(108,63,232,0.08); transition: background 0.2s, transform 0.1s;
+    }
+    .qr-btn:hover { background: rgba(108,63,232,0.2); transform: translateY(-1px); }
+
+    /* ── COURSE VIEW ── */
+    #course {
+      flex-direction: row;
+      overflow: hidden;
+    }
+
+    .sidebar {
+      width: 280px; background: var(--bg2); border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; overflow-y: auto; flex-shrink: 0;
+    }
+    .sidebar-header { padding: 18px 16px; border-bottom: 1px solid var(--border); }
+    .sidebar-header .course-title { font-weight: 700; font-size: 0.9rem; color: var(--text); line-height: 1.4; }
+    .sidebar-header .course-meta { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+
+    .lesson-list { padding: 10px 0; }
+    .lesson-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 16px; cursor: pointer;
+      transition: background 0.15s; border-left: 3px solid transparent;
+    }
+    .lesson-item:hover { background: rgba(108,63,232,0.08); }
+    .lesson-item.active { background: rgba(108,63,232,0.12); border-left-color: var(--primary-light); }
+    .lesson-item.locked { opacity: 0.45; cursor: not-allowed; }
+    .lesson-item.completed { opacity: 0.7; }
+
+    .lesson-num {
+      width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700;
+    }
+    .lesson-num.unlocked { background: rgba(108,63,232,0.2); color: var(--primary-light); border: 1px solid var(--primary-light); }
+    .lesson-num.active { background: var(--primary); color: #fff; }
+    .lesson-num.locked { background: var(--bg3); color: var(--text-muted); border: 1px solid var(--border); }
+    .lesson-num.done { background: var(--success); color: #fff; }
+
+    .lesson-info { flex: 1; }
+    .lesson-info .l-title { font-size: 0.82rem; font-weight: 600; color: var(--text); }
+    .lesson-info .l-sub { font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; }
+
+    .lesson-lock-icon { font-size: 0.75rem; color: var(--text-muted); }
+
+    /* Main lesson area */
+    .lesson-main {
+      flex: 1; overflow-y: auto; display: flex; flex-direction: column;
+    }
+    .lesson-main::-webkit-scrollbar { width: 4px; }
+    .lesson-main::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    .lesson-top-bar {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 24px; border-bottom: 1px solid var(--border);
+      background: var(--bg2);
+    }
+    .lesson-top-bar .btn-back {
+      background: none; border: 1px solid var(--border); color: var(--text-muted);
+      padding: 6px 14px; border-radius: 20px; cursor: pointer; font-size: 0.8rem;
+      transition: border-color 0.2s;
+    }
+    .lesson-top-bar .btn-back:hover { border-color: var(--primary-light); color: var(--primary-light); }
+    .lesson-top-bar .lesson-heading { font-weight: 700; font-size: 1rem; }
+    .lesson-top-bar .grade-chip {
+      margin-left: auto; padding: 4px 14px; border-radius: 20px; font-size: 0.78rem; font-weight: 700;
+    }
+    .grade-chip.mastered { background: rgba(16,185,129,0.15); color: var(--success); border: 1px solid var(--success); }
+    .grade-chip.completed { background: rgba(59,130,246,0.15); color: var(--accent-blue); border: 1px solid var(--accent-blue); }
+    .grade-chip.attempted { background: rgba(245,158,11,0.15); color: var(--accent); border: 1px solid var(--accent); }
+
+    .lesson-body { padding: 24px; display: flex; flex-direction: column; gap: 20px; }
+
+    .section-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 14px; padding: 18px 20px;
+    }
+    .section-card h3 { font-size: 0.78rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.8px; color: var(--primary-light); margin-bottom: 10px; }
+
+    .objective-text { font-size: 0.92rem; line-height: 1.6; color: var(--text); }
+
+    .tool-launch-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .tool-launch-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(108,63,232,0.12); border: 1px solid rgba(108,63,232,0.4);
+      color: var(--primary-light); padding: 9px 18px; border-radius: 10px;
+      font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: background 0.2s, transform 0.1s;
+    }
+    .tool-launch-btn:hover { background: rgba(108,63,232,0.25); transform: translateY(-1px); }
+    .tool-launch-btn .tool-icon { font-size: 1rem; }
+
+    /* Checklist */
+    .checklist { display: flex; flex-direction: column; gap: 8px; }
+    .check-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 12px 14px; border-radius: 10px;
+      border: 1px solid var(--border); background: var(--bg3);
+      cursor: pointer; transition: border-color 0.2s, background 0.2s;
+    }
+    .check-item:hover { border-color: var(--primary-light); background: rgba(108,63,232,0.06); }
+    .check-item.done { border-color: var(--success); background: rgba(16,185,129,0.06); }
+    .check-item.mastered { border-color: var(--gold); background: rgba(255,215,0,0.05); }
+
+    .check-box {
+      width: 22px; height: 22px; border-radius: 6px; flex-shrink: 0; margin-top: 1px;
+      display: flex; align-items: center; justify-content: center; font-size: 0.85rem;
+      border: 2px solid var(--border); background: var(--bg);
+      transition: all 0.2s;
+    }
+    .check-item.done .check-box { background: var(--success); border-color: var(--success); }
+    .check-item.mastered .check-box { background: var(--gold); border-color: var(--gold); color: #000; }
+
+    .check-text { flex: 1; }
+    .check-text .c-title { font-size: 0.87rem; font-weight: 600; }
+    .check-text .c-sub { font-size: 0.78rem; color: var(--text-muted); margin-top: 3px; }
+    .check-badge { font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 8px; margin-top: 4px; display: inline-block; }
+    .badge-mastered { background: rgba(255,215,0,0.15); color: var(--gold); border: 1px solid var(--gold); }
+    .badge-completed { background: rgba(16,185,129,0.15); color: var(--success); }
+
+    /* AI feedback box in lesson */
+    .ai-feedback-box {
+      border: 1px solid var(--primary-light); border-radius: 12px;
+      padding: 14px 16px; background: rgba(108,63,232,0.07);
+      display: flex; gap: 10px;
+    }
+    .ai-feedback-box .ai-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 2px; }
+    .ai-feedback-box .feedback-text { font-size: 0.87rem; line-height: 1.6; color: var(--text); }
+    .ai-feedback-box .feedback-text em { color: var(--primary-light); font-style: normal; font-weight: 600; }
+
+    /* ── EXTENSION SCREEN ── */
+    #extension {
+      flex-direction: column;
+      background: #1A1A2E;
+    }
+
+    .ext-browser-bar {
+      background: #2A2A3E; padding: 10px 16px; display: flex; align-items: center; gap: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .browser-dots { display: flex; gap: 5px; }
+    .browser-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .browser-dot.red { background: #FF5F57; }
+    .browser-dot.yellow { background: #FEBC2E; }
+    .browser-dot.green { background: #28C840; }
+    .browser-url {
+      flex: 1; background: rgba(255,255,255,0.07); border: none; border-radius: 6px;
+      padding: 5px 12px; color: #9999BB; font-size: 0.78rem; text-align: center;
+    }
+    .ext-badge { font-size: 0.7rem; background: var(--primary); color: #fff; padding: 3px 10px; border-radius: 10px; font-weight: 700; }
+
+    .ext-layout {
+      flex: 1; display: flex; overflow: hidden;
+    }
+
+    .framer-view {
+      flex: 1; background: #0D1117; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; padding: 30px; gap: 20px;
+    }
+    .framer-header { font-size: 0.9rem; color: #555577; font-weight: 600; text-align: center; }
+    .framer-canvas {
+      width: 100%; max-width: 500px; background: #161B22; border: 1px solid #30363D;
+      border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 14px;
+    }
+    .framer-nav { height: 44px; background: #21262D; border-radius: 8px; display: flex; align-items: center; padding: 0 16px; gap: 10px; }
+    .framer-nav .flogo { width: 24px; height: 24px; background: #F59E0B; border-radius: 6px; }
+    .framer-nav .fnav-links { display: flex; gap: 12px; margin-left: auto; }
+    .framer-nav .fnav-link { font-size: 0.75rem; color: #8B949E; }
+    .framer-hero {
+      background: linear-gradient(135deg, #1F2937, #374151);
+      border-radius: 10px; padding: 28px 20px; text-align: center;
+    }
+    .framer-hero .hero-headline {
+      font-size: 1.1rem; font-weight: 700; color: #E5E7EB; line-height: 1.4;
+      border-bottom: 2px solid #F59E0B; display: inline; transition: all 0.5s;
+    }
+    .framer-hero .hero-sub { font-size: 0.78rem; color: #9CA3AF; margin-top: 8px; }
+    .framer-hero .hero-cta {
+      margin-top: 14px; background: #F59E0B; color: #000; padding: 8px 22px;
+      border-radius: 20px; font-size: 0.8rem; font-weight: 700; display: inline-block;
+    }
+    .framer-placeholder { height: 60px; background: #21262D; border-radius: 8px; }
+    .framer-typing-indicator {
+      position: absolute; bottom: 12px; left: 12px;
+      background: rgba(245,158,11,0.15); border: 1px solid #F59E0B;
+      border-radius: 8px; padding: 4px 10px; font-size: 0.7rem; color: #F59E0B; font-weight: 600;
+      animation: pulse 1.5s infinite;
+    }
+
+    .ext-panel {
+      width: 320px; background: var(--bg2); border-left: 1px solid var(--border);
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    .ext-panel-header {
+      padding: 12px 14px; background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      display: flex; align-items: center; gap: 8px;
+    }
+    .ext-panel-header .ext-brand { font-weight: 800; font-size: 0.9rem; color: #fff; }
+    .ext-panel-header .mode-pill {
+      margin-left: auto; font-size: 0.68rem; background: rgba(255,255,255,0.2);
+      padding: 3px 8px; border-radius: 8px; color: #fff; font-weight: 600;
+    }
+    .ext-messages { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+    .ext-msg { font-size: 0.82rem; line-height: 1.55; }
+    .ext-msg.ai { background: var(--ai-bubble); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; }
+    .ext-msg.user { background: var(--user-bubble); border-radius: 10px; padding: 10px 12px; text-align: right; }
+    .ext-msg em { color: var(--accent); font-style: normal; font-weight: 600; }
+    .ext-context-bar {
+      padding: 8px 12px; background: rgba(108,63,232,0.1); border-top: 1px solid var(--border);
+      font-size: 0.72rem; color: var(--primary-light); display: flex; gap: 6px; align-items: center;
+    }
+    .ext-context-bar span { background: rgba(108,63,232,0.2); padding: 2px 8px; border-radius: 8px; }
+    .ext-input-row {
+      padding: 10px; border-top: 1px solid var(--border); display: flex; gap: 8px;
+    }
+    .ext-input-row input {
+      flex: 1; background: var(--bg3); border: 1px solid var(--border); color: var(--text);
+      padding: 8px 12px; border-radius: 20px; font-size: 0.8rem; outline: none;
+    }
+    .ext-input-row button {
+      background: var(--primary); color: #fff; border: none; width: 32px; height: 32px;
+      border-radius: 50%; cursor: pointer; font-size: 0.8rem;
+    }
+
+    /* ── CERTIFICATE SCREEN ── */
+    #certificate {
+      align-items: center; justify-content: center;
+      background: radial-gradient(ellipse at 50% 30%, rgba(255,215,0,0.06) 0%, var(--bg) 60%);
+      overflow-y: auto; padding: 30px 20px;
+    }
+    .cert-wrapper { max-width: 640px; width: 100%; display: flex; flex-direction: column; gap: 20px; align-items: center; }
+
+    .cert-card {
+      width: 100%; background: var(--bg2); border: 2px solid var(--gold);
+      border-radius: 20px; padding: 36px 40px; text-align: center;
+      box-shadow: 0 0 60px rgba(255,215,0,0.1), 0 0 120px rgba(255,215,0,0.04);
+      position: relative; overflow: hidden;
+    }
+    .cert-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: repeating-linear-gradient(45deg, transparent, transparent 30px, rgba(255,215,0,0.015) 30px, rgba(255,215,0,0.015) 60px);
+    }
+    .cert-top { font-size: 0.72rem; font-weight: 700; letter-spacing: 2px; color: var(--gold); text-transform: uppercase; }
+    .cert-brand { font-size: 2rem; font-weight: 800;
+      background: linear-gradient(135deg, var(--gold), #FFA500, var(--gold));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 8px 0; }
+    .cert-subtitle { font-size: 0.8rem; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; }
+    .cert-divider { border: none; border-top: 1px solid rgba(255,215,0,0.3); margin: 20px 0; }
+    .cert-awarded { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 6px; }
+    .cert-name { font-size: 1.6rem; font-weight: 700; color: var(--text); }
+    .cert-project-label { font-size: 0.75rem; color: var(--text-muted); margin: 16px 0 4px; }
+    .cert-project { font-size: 1rem; font-weight: 600; color: var(--primary-light); }
+    .cert-tools-label { font-size: 0.72rem; color: var(--text-muted); margin: 14px 0 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .cert-tools { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+    .cert-tool { background: rgba(108,63,232,0.15); border: 1px solid rgba(108,63,232,0.4);
+      color: var(--primary-light); padding: 4px 14px; border-radius: 12px; font-size: 0.78rem; font-weight: 600; }
+    .cert-grade-row { margin: 20px 0 0; display: flex; justify-content: center; gap: 30px; }
+    .cert-grade-item { text-align: center; }
+    .cert-grade-item .g-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .cert-grade-item .g-value { font-size: 1rem; font-weight: 700; color: var(--text); margin-top: 3px; }
+    .cert-grade-item .g-value.distinction { color: var(--gold); }
+
+    .cert-id-row { margin-top: 20px; font-size: 0.72rem; color: var(--text-muted); }
+    .cert-id-row .cert-id { color: var(--primary-light); font-weight: 600; }
+
+    .cert-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    .cert-action-btn {
+      padding: 10px 22px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; cursor: pointer;
+      transition: transform 0.15s;
+    }
+    .cert-action-btn:hover { transform: translateY(-2px); }
+    .cert-action-btn.primary { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: #fff; border: none; }
+    .cert-action-btn.secondary { background: none; border: 1px solid var(--gold); color: var(--gold); }
+
+    /* ── UTILS ── */
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes bounce { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-5px); } }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+    @keyframes shimmer { from { opacity: 0.6; } to { opacity: 1; } }
+
+    .hidden { display: none !important; }
+
+    /* Demo nav dots */
+    .demo-nav {
+      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 8px; z-index: 100;
+    }
+    .demo-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.2);
+      cursor: pointer; transition: all 0.2s;
+    }
+    .demo-dot.active { background: var(--primary-light); border-color: var(--primary-light); width: 24px; border-radius: 4px; }
+
+    /* Screen label overlay */
+    .screen-label {
+      position: fixed; top: 10px; right: 14px; z-index: 200;
+      font-size: 0.68rem; color: var(--text-muted);
+      background: var(--bg2); border: 1px solid var(--border);
+      padding: 3px 10px; border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ░░ SCREEN 1: SPLASH ░░ -->
+<div id="splash" class="screen active">
+  <div class="logo-block">
+    <div class="wordmark">AxuoraLearn</div>
+    <div class="tagline">Vibe Learning — Demo Walkthrough</div>
+    <div class="sub">Powered by China's MOE AI Education Framework · Built for Malaysia</div>
+  </div>
+  <div class="feature-pills">
+    <div class="pill">AI-Personalised Courses</div>
+    <div class="pill">Real-Time Chrome Extension</div>
+    <div class="pill">AI Grading & Feedback</div>
+    <div class="pill">Verifiable Certificates</div>
+  </div>
+  <button class="btn-primary" onclick="startDemo()">▶ Watch Demo</button>
+  <div style="font-size:0.75rem;color:var(--text-muted)">Follow Amirah building her food business website using AI</div>
+</div>
+
+<!-- ░░ SCREEN 2: CHAT (onboarding + course gen) ░░ -->
+<div id="chat" class="screen">
+  <div class="chat-header">
+    <div class="brand">AxuoraLearn</div>
+    <div style="font-size:0.78rem;color:var(--text-muted)">Vibe Learning</div>
+    <div class="step-badge" id="step-badge">Step 1 of 6</div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+  <div class="messages" id="messages"></div>
+  <div class="chat-input-area">
+    <input type="text" id="chat-input" placeholder="Type your idea…" onkeydown="handleKey(event)" />
+    <button id="send-btn" onclick="sendMessage()">➤</button>
+  </div>
+</div>
+
+<!-- ░░ SCREEN 3: COURSE VIEW ░░ -->
+<div id="course" class="screen">
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="course-title">Build Your Food Business Website Using AI</div>
+      <div class="course-meta">Generated for Amirah · 6 Lessons · Est. 3 hrs</div>
+      <div style="margin-top:10px;">
+        <div style="height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;">
+          <div style="width:66%;height:100%;background:linear-gradient(90deg,var(--primary),var(--primary-light));border-radius:3px;"></div>
+        </div>
+        <div style="font-size:0.72rem;color:var(--text-muted);margin-top:4px;">4 of 6 lessons complete</div>
+      </div>
+    </div>
+    <div class="lesson-list" id="lesson-list"></div>
+  </div>
+  <div class="lesson-main">
+    <div class="lesson-top-bar">
+      <button class="btn-back" onclick="showScreen('chat')">← Back</button>
+      <div class="lesson-heading">Lesson 3 — Build Your First Draft with Framer AI</div>
+      <div class="grade-chip mastered">⭐ Mastered</div>
+    </div>
+    <div class="lesson-body" id="lesson-body"></div>
+  </div>
+</div>
+
+<!-- ░░ SCREEN 4: CHROME EXTENSION ░░ -->
+<div id="extension" class="screen">
+  <div class="ext-browser-bar">
+    <div class="browser-dots">
+      <div class="browser-dot red"></div>
+      <div class="browser-dot yellow"></div>
+      <div class="browser-dot green"></div>
+    </div>
+    <input class="browser-url" value="framer.com — Kuih By Mak Cik Rohani" readonly />
+    <div class="ext-badge">AX Extension Active</div>
+  </div>
+  <div class="ext-layout">
+    <div class="framer-view" style="position:relative;">
+      <div class="framer-header">Framer AI — Live Editing</div>
+      <div class="framer-canvas">
+        <div class="framer-nav">
+          <div class="flogo"></div>
+          <span style="font-size:0.78rem;color:#E5E7EB;font-weight:600;">Kuih By Mak Cik Rohani</span>
+          <div class="fnav-links">
+            <span class="fnav-link">Menu</span>
+            <span class="fnav-link">Order</span>
+            <span class="fnav-link">About</span>
+          </div>
+        </div>
+        <div class="framer-hero">
+          <div class="hero-headline" id="framer-headline">Your Business Name Here</div>
+          <div class="hero-sub" id="framer-sub">Your tagline goes here</div>
+          <div class="hero-cta">Order Now</div>
+        </div>
+        <div class="framer-placeholder"></div>
+        <div class="framer-placeholder" style="height:40px;"></div>
+      </div>
+      <div class="framer-typing-indicator" id="framer-typing" style="display:none;">✍ Student is editing…</div>
+    </div>
+    <div class="ext-panel">
+      <div class="ext-panel-header">
+        <span class="ext-brand">AxuoraLearn</span>
+        <span style="font-size:0.72rem;color:rgba(255,255,255,0.7)">Guidance Mode</span>
+        <span class="mode-pill">👁 Screen Active</span>
+      </div>
+      <div class="ext-messages" id="ext-messages"></div>
+      <div class="ext-context-bar">
+        <span>Framer</span>
+        <span>Lesson 3 · Task 2</span>
+        <span style="margin-left:auto;">Screen Reading ✓</span>
+      </div>
+      <div class="ext-input-row">
+        <input type="text" placeholder="Ask the AI anything…" id="ext-input" onkeydown="extKey(event)" />
+        <button onclick="extSend()">➤</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ░░ SCREEN 5: CERTIFICATE ░░ -->
+<div id="certificate" class="screen">
+  <div class="cert-wrapper">
+    <div class="cert-card">
+      <div class="cert-top">Certificate of Project Completion</div>
+      <div class="cert-brand">AxuoraLearn</div>
+      <div class="cert-subtitle">Vibe Learning · Verified by AI</div>
+      <hr class="cert-divider" />
+      <div class="cert-awarded">This certificate is proudly awarded to</div>
+      <div class="cert-name">Amirah Binti Norzaidi</div>
+      <div class="cert-project-label">Project Built</div>
+      <div class="cert-project">Food Business Website — Kuih By Mak Cik Rohani</div>
+      <div class="cert-tools-label">AI Tools Mastered</div>
+      <div class="cert-tools">
+        <span class="cert-tool">Framer AI</span>
+        <span class="cert-tool">ChatGPT</span>
+        <span class="cert-tool">Canva AI</span>
+      </div>
+      <hr class="cert-divider" />
+      <div class="cert-grade-row">
+        <div class="cert-grade-item">
+          <div class="g-label">Lessons</div>
+          <div class="g-value">6 of 6</div>
+        </div>
+        <div class="cert-grade-item">
+          <div class="g-label">Final Grade</div>
+          <div class="g-value distinction">Distinction</div>
+        </div>
+        <div class="cert-grade-item">
+          <div class="g-label">Date</div>
+          <div class="g-value">March 2026</div>
+        </div>
+      </div>
+      <div class="cert-id-row">
+        Certificate ID: <span class="cert-id">AXL-2026-00847</span> · Verify at axuoralearn.com/verify/AXL-2026-00847
+      </div>
+    </div>
+    <div class="cert-actions">
+      <button class="cert-action-btn primary" onclick="showScreen('splash')">↩ Restart Demo</button>
+      <button class="cert-action-btn secondary">↓ Download PDF</button>
+      <button class="cert-action-btn secondary">Share on LinkedIn</button>
+    </div>
+    <div style="text-align:center;font-size:0.75rem;color:var(--text-muted);padding-bottom:10px;">
+      Every certificate is tied to real submitted work and cannot be faked.
+    </div>
+  </div>
+</div>
+
+<!-- Nav dots -->
+<div class="demo-nav" id="demo-nav">
+  <div class="demo-dot active" onclick="showScreen('splash')" title="Intro"></div>
+  <div class="demo-dot" onclick="showScreen('chat')" title="Chat / Course Gen"></div>
+  <div class="demo-dot" onclick="showScreen('course')" title="Course View"></div>
+  <div class="demo-dot" onclick="showScreen('extension')" title="Chrome Extension"></div>
+  <div class="demo-dot" onclick="showScreen('certificate')" title="Certificate"></div>
+</div>
+
+<div class="screen-label" id="screen-label">Intro</div>
+
+<script>
+const SCREENS = ['splash','chat','course','extension','certificate'];
+const SCREEN_LABELS = ['Intro','Chat — Course Generation','Course View','Chrome Extension','Certificate'];
+
+let currentScreen = 'splash';
+let chatStep = 0;
+let extStep = 0;
+let chatBusy = false;
+
+// ── SCREEN NAV ──
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  currentScreen = id;
+  const idx = SCREENS.indexOf(id);
+  document.querySelectorAll('.demo-dot').forEach((d,i) => d.classList.toggle('active', i === idx));
+  document.getElementById('screen-label').textContent = SCREEN_LABELS[idx];
+  if (id === 'course') initCourse();
+  if (id === 'extension') initExtension();
+}
+
+// ── SPLASH ──
+function startDemo() {
+  showScreen('chat');
+  setTimeout(() => beginChatFlow(), 400);
+}
+
+// ── CHAT FLOW ──
+const chatFlow = [
+  // [type, sender, text, delay, quickReplies]
+  ['msg','ai','👋 Hi! I\'m your AxuoraLearn AI mentor. I\'m here to teach you how to build real things using AI — not do it for you.\n\nWhat would you like to build? Don\'t worry about making it perfect — just tell me your idea.',600,[]],
+  ['input','user','I want to build a website for my home-based kuih business so customers can see my menu and order from me.',0,[]],
+  ['msg','ai','That\'s a great idea! 🍡 A website for your kuih business — let\'s build it the right way.\n\nBefore I create your course, I have a few quick questions to make sure it\'s built around *your* exact goal.',1200,[]],
+  ['msg','ai','<strong>Question 1:</strong> Who is your main audience? Are you targeting people in your neighbourhood, your whole city, or beyond?',800,['My neighbourhood in KL','Whole Klang Valley','Anyone online']],
+  ['input','user','My neighbourhood and the Klang Valley mainly.',0,[]],
+  ['msg','ai','Got it. <strong>Question 2:</strong> What does success look like for this website? What\'s the main thing you want customers to do when they visit?',800,['Place an order','See my menu','Contact me on WhatsApp']],
+  ['input','user','I want them to see the menu and then WhatsApp me to order.',0,[]],
+  ['msg','ai','Perfect. One last question — <strong>have you ever used Framer, Canva, or any AI design tool before?</strong>',600,['Never used any','Used Canva a bit','Used a few tools']],
+  ['input','user','I\'ve used Canva a bit but never built a website.',0,[]],
+  ['msg','ai','✅ That\'s exactly what I needed to know. Generating your personalised course now…',800,[]],
+  ['course-card','ai','',2000,[]],
+  ['msg','ai','Your course is ready! Each lesson is locked until you complete and pass the one before it. The AI grades your work — not just whether you clicked done.\n\n<span class="highlight">Ready to start Lesson 1?</span>',1000,['Yes, let\'s go! →','Show me the course first']],
+];
+
+const STEP_LABELS = ['Step 1 of 6','Step 1 of 6','Step 2 of 6','Step 2 of 6','Step 3 of 6','Step 3 of 6','Step 4 of 6','Step 4 of 6','Step 5 of 6','Step 5 of 6','Step 6 of 6','','Step 6 of 6'];
+const PROGRESS = [5,5,20,20,35,35,50,50,65,65,80,95,100];
+
+let qrHandler = null;
+
+function beginChatFlow() {
+  playStep(0);
+}
+
+function playStep(i) {
+  if (i >= chatFlow.length) return;
+  const [type, sender, text, delay, qrs] = chatFlow[i];
+  chatStep = i;
+  updateProgress(i);
+
+  if (type === 'input') {
+    // Simulated user message
+    setTimeout(() => {
+      addMsg('user', text);
+      playStep(i + 1);
+    }, delay || 600);
+    return;
+  }
+
+  if (type === 'course-card') {
+    setTimeout(() => {
+      showTyping(true);
+      setTimeout(() => {
+        showTyping(false);
+        addCourseCard();
+        playStep(i + 1);
+      }, 2000);
+    }, delay);
+    return;
+  }
+
+  // AI message
+  setTimeout(() => {
+    showTyping(true);
+    const msgDelay = Math.min(600 + text.length * 1.5, 1800);
+    setTimeout(() => {
+      showTyping(false);
+      const el = addMsg('ai', text);
+      if (qrs && qrs.length > 0) {
+        addQuickReplies(qrs, i + 1);
+      } else if (sender === 'ai') {
+        playStep(i + 1);
+      }
+    }, msgDelay);
+  }, delay);
+}
+
+function updateProgress(i) {
+  const pct = PROGRESS[Math.min(i, PROGRESS.length-1)] || 0;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  const label = STEP_LABELS[Math.min(i, STEP_LABELS.length-1)] || '';
+  document.getElementById('step-badge').textContent = label;
+}
+
+function addMsg(sender, text) {
+  const msgs = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = `msg ${sender}`;
+
+  const avatar = document.createElement('div');
+  avatar.className = `avatar ${sender}`;
+  avatar.textContent = sender === 'ai' ? 'AX' : 'A';
+
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  bubble.innerHTML = text.replace(/\n/g,'<br>');
+
+  div.appendChild(avatar);
+  div.appendChild(bubble);
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  return div;
+}
+
+function addCourseCard() {
+  const msgs = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = 'msg ai';
+  div.innerHTML = `
+    <div class="avatar ai">AX</div>
+    <div class="bubble" style="max-width:85%;">
+      <strong style="font-size:0.9rem;">📚 Your Personalised Course</strong><br><br>
+      <strong>Build Your Food Business Website Using AI</strong><br>
+      <span style="font-size:0.78rem;color:var(--text-muted);">Generated for you · 6 Lessons · Based on your kuih business idea</span><br><br>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-top:4px;">
+        ${[
+          ['✅','1','Understand What You Are Building','Complete'],
+          ['✅','2','Plan Your Website Structure','Complete'],
+          ['⭐','3','Build Your First Draft with Framer AI','Mastered'],
+          ['🔓','4','Write Your Content with ChatGPT','Unlocked'],
+          ['🔒','5','Design Your Brand with Canva AI','Locked'],
+          ['🔒','F','Submit Your Live Website for Grading','Locked'],
+        ].map(([icon,num,title,status]) => `
+          <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;background:var(--bg3);border:1px solid var(--border);">
+            <span style="font-size:0.85rem;">${icon}</span>
+            <span style="font-size:0.8rem;font-weight:600;color:var(--text);">${title}</span>
+            <span style="margin-left:auto;font-size:0.7rem;color:var(--text-muted);">${status}</span>
+          </div>
+        `).join('')}
+      </div>
+      <div style="margin-top:10px;padding:8px 10px;border-radius:8px;background:rgba(108,63,232,0.08);border:1px solid rgba(108,63,232,0.2);font-size:0.78rem;color:var(--primary-light);">
+        🔒 Each lesson unlocks only after you complete and pass the previous one. The AI grades your work — not just whether you clicked done.
+      </div>
+    </div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function addQuickReplies(qrs, nextStep) {
+  const msgs = document.getElementById('messages');
+  const row = document.createElement('div');
+  row.className = 'quick-replies';
+  row.style.paddingLeft = '44px';
+  row.id = 'qr-row';
+  qrs.forEach(qr => {
+    const btn = document.createElement('button');
+    btn.className = 'qr-btn';
+    btn.textContent = qr;
+    btn.onclick = () => {
+      row.remove();
+      addMsg('user', qr);
+      playStep(nextStep);
+    };
+    row.appendChild(btn);
+  });
+  msgs.appendChild(row);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function showTyping(show) {
+  let el = document.getElementById('typing');
+  if (show) {
+    if (!el) {
+      const msgs = document.getElementById('messages');
+      const div = document.createElement('div');
+      div.className = 'msg ai';
+      div.id = 'typing';
+      div.innerHTML = `<div class="avatar ai">AX</div><div class="bubble" style="padding:10px 16px;"><div class="typing-indicator"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>`;
+      msgs.appendChild(div);
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+  } else {
+    if (el) el.remove();
+  }
+}
+
+function handleKey(e) { if (e.key === 'Enter') sendMessage(); }
+
+function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  addMsg('user', text);
+  // Simulate AI reply
+  showTyping(true);
+  setTimeout(() => {
+    showTyping(false);
+    if (currentScreen === 'chat' && chatStep >= chatFlow.length - 1) {
+      addMsg('ai', 'Great! Let\'s move on to your course. Click the <strong>Course View</strong> dot below to explore your lessons. 👇');
+    }
+  }, 1200);
+}
+
+// ── COURSE VIEW ──
+const lessons = [
+  { num: 1, title: 'Understand What You Are Building', sub: 'Goal setting & research', state: 'done' },
+  { num: 2, title: 'Plan Your Website Structure', sub: 'Sitemap & content outline', state: 'done' },
+  { num: 3, title: 'Build Your First Draft with Framer AI', sub: 'AI design tool', state: 'active' },
+  { num: 4, title: 'Write Your Content with ChatGPT', sub: 'Copywriting with AI', state: 'unlocked' },
+  { num: 5, title: 'Design Your Brand with Canva AI', sub: 'Visuals & branding', state: 'locked' },
+  { num: 'F', title: 'Submit Your Live Website for Grading', sub: 'Final submission', state: 'locked' },
+];
+
+function initCourse() {
+  // Build sidebar
+  const ll = document.getElementById('lesson-list');
+  ll.innerHTML = '';
+  lessons.forEach(l => {
+    const item = document.createElement('div');
+    item.className = `lesson-item ${l.state === 'active' ? 'active' : ''} ${l.state === 'locked' ? 'locked' : ''} ${l.state === 'done' ? 'completed' : ''}`;
+    const numClass = l.state === 'done' ? 'done' : l.state === 'active' ? 'active' : l.state === 'unlocked' ? 'unlocked' : 'locked';
+    item.innerHTML = `
+      <div class="lesson-num ${numClass}">${l.state === 'done' ? '✓' : l.num}</div>
+      <div class="lesson-info">
+        <div class="l-title">${l.title}</div>
+        <div class="l-sub">${l.sub}</div>
+      </div>
+      ${l.state === 'locked' ? '<span class="lesson-lock-icon">🔒</span>' : ''}`;
+    ll.appendChild(item);
+  });
+
+  // Build lesson body
+  const lb = document.getElementById('lesson-body');
+  lb.innerHTML = `
+    <div class="section-card">
+      <h3>Lesson Objective</h3>
+      <div class="objective-text">Build a real first draft of your kuih business website using Framer AI — and learn how to write a prompt that gives you a useful result, not a generic one.</div>
+    </div>
+
+    <div class="section-card">
+      <h3>AI Tool for This Lesson</h3>
+      <div class="tool-launch-row">
+        <div class="tool-launch-btn" onclick="showScreen('extension')">
+          <span class="tool-icon">🎨</span> Open Framer AI
+          <span style="font-size:0.7rem;opacity:0.7;margin-left:4px;">↗ Launches extension</span>
+        </div>
+        <div style="font-size:0.8rem;color:var(--text-muted);max-width:300px;">Framer AI is the right tool here because it generates a full website layout from a single description — no coding, no templates to fight with.</div>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <h3>Task Checklist</h3>
+      <div class="checklist">
+        <div class="check-item done">
+          <div class="check-box">✓</div>
+          <div class="check-text">
+            <div class="c-title">Write your website brief in one paragraph</div>
+            <div class="c-sub">Describe your business, your customers, and what action you want them to take</div>
+            <span class="check-badge badge-completed">✓ Completed</span>
+          </div>
+        </div>
+        <div class="check-item mastered">
+          <div class="check-box" style="color:#000;">⭐</div>
+          <div class="check-text">
+            <div class="c-title">Generate your first Framer AI draft</div>
+            <div class="c-sub">Open Framer, enter your prompt, and capture a screenshot of the result</div>
+            <span class="check-badge badge-mastered">⭐ Mastered</span>
+          </div>
+        </div>
+        <div class="check-item done">
+          <div class="check-box">✓</div>
+          <div class="check-text">
+            <div class="c-title">Review the output and identify 3 things to improve</div>
+            <div class="c-sub">Write down what does not match your vision and why</div>
+            <span class="check-badge badge-completed">✓ Completed</span>
+          </div>
+        </div>
+        <div class="check-item done">
+          <div class="check-box">✓</div>
+          <div class="check-text">
+            <div class="c-title">Refine your prompt and regenerate</div>
+            <div class="c-sub">Show the before and after — what changed and what improved</div>
+            <span class="check-badge badge-completed">✓ Completed</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ai-feedback-box">
+      <div class="ai-icon">🤖</div>
+      <div class="feedback-text">
+        <em>AI Grading Feedback — Mastered</em><br><br>
+        You didn't just generate a website — you <em>evaluated</em> it and refined your prompt without being asked. When you changed "home-based kuih business" to "traditional Malay kuih delivery in KL for office workers and families," the result was meaningfully better.<br><br>
+        <em>That is creative direction.</em> That is the real skill. You understood the output, identified what was missing, and changed the input. That's how professionals use AI tools.
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:4px;">
+      <button class="btn-primary" style="padding:11px 28px;font-size:0.875rem;" onclick="showScreen('extension')">
+        Try the Chrome Extension →
+      </button>
+      <button style="background:none;border:1px solid var(--border);color:var(--text-muted);padding:11px 20px;border-radius:50px;cursor:pointer;font-size:0.875rem;" onclick="showScreen('certificate')">
+        Skip to Certificate →
+      </button>
+    </div>
+  `;
+}
+
+// ── EXTENSION FLOW ──
+const extMessages = [
+  { sender: 'ai', text: '👁 <em>Screen reading active.</em> I can see you\'re on Framer. Your current draft has a placeholder headline — "Your Business Name Here."\n\nYour task is to write a <em>real headline</em> for your kuih business. Try: what you sell + who it\'s for + what makes it special.' },
+  { sender: 'user', text: 'How do I make the headline stand out more?' },
+  { sender: 'ai', text: 'Good question. I can see your background is dark, so light text will work. Try making the font <em>bold and larger</em> in Framer\'s text settings — look for the "T" icon on the right panel.\n\nAlso, your audience is office workers and families. Lead with the emotion: <em>"Authentic Kuih, Delivered Fresh — Order From Mak Cik Rohani."</em>' },
+  { sender: 'ai', text: '✅ I can now see you\'ve updated the headline. <em>That\'s a real improvement.</em> The specificity of "KL delivery" makes it instantly relevant to your audience.\n\nNow move to Task 3: identify 3 things you\'d still change.' },
+];
+
+let extMsgIdx = 0;
+let extTimer = null;
+
+function initExtension() {
+  const em = document.getElementById('ext-messages');
+  em.innerHTML = '';
+  extMsgIdx = 0;
+
+  // Show first message immediately
+  setTimeout(() => playExtMsg(), 600);
+
+  // Auto-play sequence with screen changes
+  setTimeout(() => {
+    document.getElementById('framer-typing').style.display = 'block';
+  }, 4000);
+  setTimeout(() => {
+    document.getElementById('framer-headline').textContent = 'Authentic Kuih, Delivered Fresh in KL';
+    document.getElementById('framer-sub').textContent = 'Order from Mak Cik Rohani — Traditional recipes, same-day delivery';
+    document.getElementById('framer-typing').style.display = 'none';
+  }, 7000);
+  setTimeout(() => playExtMsg(), 8500);
+}
+
+function playExtMsg() {
+  if (extMsgIdx >= extMessages.length) return;
+  const m = extMessages[extMsgIdx++];
+  addExtMsg(m.sender, m.text);
+}
+
+function addExtMsg(sender, text) {
+  const em = document.getElementById('ext-messages');
+  const div = document.createElement('div');
+  div.className = `ext-msg ${sender}`;
+  div.innerHTML = text.replace(/\n/g, '<br>');
+  em.appendChild(div);
+  em.scrollTop = em.scrollHeight;
+}
+
+function extKey(e) { if (e.key === 'Enter') extSend(); }
+function extSend() {
+  const input = document.getElementById('ext-input');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  addExtMsg('user', text);
+  setTimeout(() => {
+    addExtMsg('ai', 'I can see what\'s on your screen right now. Based on your current Framer layout, try <em>adding a WhatsApp button</em> in the hero section — that\'s your primary CTA from the brief. Click the + icon, add a Button element, and set the link to wa.me/your-number.');
+  }, 1200);
+}
+
+// ── KEYBOARD NAV ──
+document.addEventListener('keydown', e => {
+  const idx = SCREENS.indexOf(currentScreen);
+  if (e.key === 'ArrowRight' && idx < SCREENS.length - 1) showScreen(SCREENS[idx + 1]);
+  if (e.key === 'ArrowLeft' && idx > 0) showScreen(SCREENS[idx - 1]);
+});
+</script>
+</body>
+</html>
