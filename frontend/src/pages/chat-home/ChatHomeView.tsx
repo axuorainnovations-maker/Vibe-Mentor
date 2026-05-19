@@ -336,32 +336,61 @@ function MessageBubble({ message }: { message: ChatMessage }) {
       display: 'flex',
       flexDirection: 'column',
       alignItems: isUser ? 'flex-end' : 'flex-start',
-      marginBottom: '16px',
+      marginBottom: '24px',
     }}>
-      <div className="message-label" style={{
-        fontSize: '11px',
-        color: 'rgba(255,255,255,0.35)',
-        marginBottom: '4px',
-        padding: '0 4px',
-        fontWeight: 500,
-        textTransform: 'uppercase',
-        letterSpacing: '0.05em',
-      }}>
-        {isUser ? 'You' : 'Vibe Mentor'}
-      </div>
-      <div className="message-content" style={{
-        background: isUser ? 'rgba(255,255,255,0.08)' : 'rgba(52,199,89,0.08)',
-        border: '1px solid rgba(255,255,255,0.06)',
-        borderRadius: '10px',
-        padding: '10px 14px',
-        maxWidth: '85%',
-        color: 'rgba(255,255,255,0.85)',
-        fontSize: '14px',
-        lineHeight: '1.5',
-        whiteSpace: 'pre-wrap',
-      }}>
-        {message.content}
-      </div>
+      {isUser ? (
+        <div style={{
+          background: 'rgba(255,255,255,0.08)',
+          border: '1px solid rgba(255,255,255,0.12)',
+          borderRadius: '12px',
+          padding: '8px 16px',
+          maxWidth: '80%',
+          wordWrap: 'break-word',
+        }}>
+          <p style={{
+            fontSize: '14px',
+            lineHeight: '1.5',
+            color: 'rgba(255,255,255,0.95)',
+            margin: 0,
+          }}>
+            {message.content}
+          </p>
+        </div>
+      ) : (
+        <div style={{ width: '100%' }}>
+          <div className="message-label" style={{
+            fontSize: '11px',
+            color: 'rgba(255,255,255,0.35)',
+            marginBottom: '8px',
+            padding: '0 4px',
+            fontWeight: 500,
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+          }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{ opacity: 0.7 }}>
+              <circle cx="12" cy="12" r="2" fill="currentColor" />
+              <circle cx="19" cy="12" r="2" fill="currentColor" />
+              <circle cx="5" cy="12" r="2" fill="currentColor" />
+            </svg>
+            Thought for 0.2s
+          </div>
+          <div className="message-content" style={{
+            background: 'transparent',
+            border: 'none',
+            borderRadius: '10px',
+            padding: '0 4px',
+            color: 'rgba(255,255,255,0.85)',
+            fontSize: '14px',
+            lineHeight: '1.6',
+            whiteSpace: 'pre-wrap',
+          }}>
+            {message.content}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -766,7 +795,7 @@ export default function ChatHomeView() {
                 <div className="messages-container" style={{
                   flex: 1,
                   overflow: 'auto',
-                  padding: '0 24px',
+                  padding: '0 24px 16px',
                   maxWidth: '720px',
                   margin: '0 auto',
                   width: '100%',
@@ -777,9 +806,9 @@ export default function ChatHomeView() {
                   {isThinking && <ThinkingIndicator />}
                   <div ref={messagesEndRef} />
                 </div>
-                <div style={{ padding: '16px 24px 24px', maxWidth: '720px', margin: '0 auto', width: '100%' }}>
+                <div style={{ padding: '0 24px 24px', maxWidth: '720px', margin: '0 auto', width: '100%' }}>
                   <InputBar
-                    placeholder="Send a message..."
+                    placeholder="Make updates to your app..."
                     onSend={handleSend}
                     status={isThinking ? 'streaming' : 'ready'}
                     disabled={isThinking}
