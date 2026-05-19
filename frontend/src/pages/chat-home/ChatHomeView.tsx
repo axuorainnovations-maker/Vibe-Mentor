@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef, memo, type ReactNode } from '
 import { useNavigate } from 'react-router-dom';
 import { useClerk } from '@clerk/clerk-react';
 import { PanelLeft, Bell } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { useChatStore, type ChatMessage } from '../../store/chatStore';
 
 import './styles.css';
@@ -28,44 +29,6 @@ function ContextRingIcon() {
 function cn(...inputs: Array<string | false | undefined | null>) {
   return inputs.filter(Boolean).join(' ');
 }
-
-function Logo({ size = 72 }: { size?: number }) {
-  const s = size;
-  return (
-    <svg
-      className="logo"
-      width={s}
-      height={Math.round(s * 0.72)}
-      viewBox="0 0 100 72"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path d="M12 8 L48 44" stroke="rgba(255,255,255,0.75)" strokeWidth="5.5" strokeLinecap="round" />
-      <path d="M48 8 L12 44" stroke="rgba(255,255,255,0.75)" strokeWidth="5.5" strokeLinecap="round" />
-      <path d="M52 8 L88 44" stroke="rgba(255,255,255,0.75)" strokeWidth="5.5" strokeLinecap="round" />
-      <path d="M88 8 L52 44" stroke="rgba(255,255,255,0.75)" strokeWidth="5.5" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function DocListIcon() {
-  return (
-    <svg className="doc-icon" viewBox="0 0 30 38" aria-hidden>
-      <rect className="doc-bg" x="1" y="1" width="28" height="36" rx="1.8" />
-      <line className="doc-line" x1="10" y1="11" x2="22" y2="11" />
-      <line className="doc-line" x1="10" y1="15" x2="18" y2="15" />
-    </svg>
-  );
-}
-
-const EDITORIAL_ROWS = [
-  { title: 'The Rarity Principle', meta: 'Created on Oct 11, 2025' },
-  { title: 'Useful Easing & Cubic Functions', meta: 'Created on Oct 8, 2025' },
-  { title: 'How Linear Balances Form and Function', meta: 'Created on Oct 6, 2025' },
-  { title: 'Choosing the Right Easing Curve', meta: 'Created on Oct 2, 2025' },
-  { title: 'Taking Advantage of Pseudo Elements', meta: 'Created on Sep 24, 2025' },
-  { title: 'The Art of Curating', meta: 'Created on Sep 4, 2025' },
-] as const;
 
 const PaperclipIcon = ({ className = 'w-[18px] h-[18px]' }: { className?: string }) => (
   <svg
@@ -466,6 +429,281 @@ function ThinkingIndicator() {
   );
 }
 
+/* ---- New Landing Design Components ---- */
+
+function Cloud3Icon() {
+  return (
+    <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
+      <motion.path
+        initial={{ pathLength: 0 }}
+        animate={{ pathLength: 1 }}
+        transition={{ duration: 1.2 }}
+        d="M7 18H17C19.2 18 21 16.2 21 14C21 11.8 19.2 10 17 10H16.7C16 7.7 13.9 6 11.5 6C8.7 6 6.4 8.2 6.1 11C4.3 11.3 3 12.8 3 14.6C3 16.5 4.5 18 6.4 18H7Z"
+        stroke="white"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+      />
+      <motion.circle
+        cx="10"
+        cy="14"
+        r="1"
+        fill="white"
+        animate={{ opacity: [0.3, 1, 0.3] }}
+        transition={{ repeat: Infinity, duration: 1.5 }}
+      />
+      <motion.circle
+        cx="13"
+        cy="14"
+        r="1"
+        fill="white"
+        animate={{ opacity: [1, 0.3, 1] }}
+        transition={{ repeat: Infinity, duration: 1.5 }}
+      />
+      <motion.circle
+        cx="16"
+        cy="14"
+        r="1"
+        fill="white"
+        animate={{ opacity: [0.3, 1, 0.3] }}
+        transition={{ repeat: Infinity, duration: 1.5, delay: 0.2 }}
+      />
+    </svg>
+  );
+}
+
+function SidebarLogo() {
+  return (
+    <div className="w-[31px] h-[31px] rounded-[9px] bg-[#1a1a1a] border border-white/[0.06] flex items-center justify-center">
+      <div style={{ transform: 'scale(0.6)', opacity: 0.9 }}>
+        <Cloud3Icon />
+      </div>
+    </div>
+  );
+}
+
+function SidebarIcon() {
+  return <div className="w-[30px] h-[30px] rounded-[10px] hover:bg-white/[0.045] transition-all duration-150" />;
+}
+
+function CircleButton({ children }: { children: ReactNode }) {
+  return (
+    <button
+      className="w-[30px] h-[30px] rounded-full bg-[#222222] border border-white/[0.045] flex items-center justify-center text-white/52 hover:bg-[#272727] transition-all duration-150 active:scale-[0.97]"
+      style={{
+        boxShadow: `
+          inset 0 1px 0 rgba(255,255,255,0.03),
+          0 1px 2px rgba(0,0,0,0.22)
+        `,
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
+function ToolbarIcon({ children }: { children: ReactNode }) {
+  return (
+    <button className="w-[22px] h-[22px] flex items-center justify-center text-white/40 hover:text-white/62 transition-all duration-150 active:scale-[0.96]">
+      {children}
+    </button>
+  );
+}
+
+function Pill({ label }: { label: string }) {
+  return (
+    <button
+      className="h-[34px] px-[14px] rounded-full bg-[#1a1a1a] border border-white/[0.06] flex items-center gap-[7px] text-[14px] font-[500] text-white/72"
+      style={{
+        boxShadow: `
+          inset 0 1px 0 rgba(255,255,255,0.04),
+          0 1px 2px rgba(0,0,0,0.24)
+        `,
+      }}
+    >
+      {label}
+      <span className="text-white/40">{'\u2304'}</span>
+    </button>
+  );
+}
+
+function EmptyLanding({ onSend, isThinking }: { onSend: (msg: UserMessage) => void; isThinking: boolean }) {
+  const [input, setInput] = useState('');
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    textareaRef.current?.focus();
+  }, []);
+
+  const handleSubmit = useCallback(() => {
+    const trimmed = input.trim();
+    if (!trimmed || isThinking) return;
+    onSend({ role: 'user', content: trimmed });
+    setInput('');
+  }, [input, isThinking, onSend]);
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        handleSubmit();
+      }
+    },
+    [handleSubmit],
+  );
+
+  return (
+    <div className="flex h-full w-full" style={{ background: '#0b0b0c' }}>
+      {/* Sidebar */}
+      <aside
+        className="w-[58px] flex flex-col items-center py-3 relative"
+        style={{ background: '#101011', borderRight: '1px solid rgba(255,255,255,0.045)' }}
+      >
+        <SidebarLogo />
+        <div className="mt-8 flex flex-col gap-[22px] text-white/56">
+          <SidebarIcon />
+          <SidebarIcon />
+          <SidebarIcon />
+        </div>
+        <div className="absolute bottom-4">
+          <SidebarIcon />
+        </div>
+      </aside>
+
+      {/* Main */}
+      <main className="flex-1 flex flex-col items-center" style={{ paddingTop: '200px', background: '#0b0b0c' }}>
+        {/* Hero Logo */}
+        <div className="relative">
+          <div className="absolute inset-0 bg-white/[0.035] blur-3xl rounded-full scale-[2]" />
+          <div className="relative flex items-center justify-center">
+            <div className="relative z-10 scale-[1.55]">
+              <Cloud3Icon />
+            </div>
+          </div>
+        </div>
+
+        {/* Heading */}
+        <h1
+          className="mt-[28px] text-center"
+          style={{
+            fontSize: '38px',
+            lineHeight: '0.98',
+            letterSpacing: '-0.07em',
+            fontWeight: 700,
+            color: '#f5f5f5',
+            maxWidth: '620px',
+          }}
+        >
+          What do you want to create today?
+        </h1>
+
+        {/* Typebar */}
+        <div
+          className="relative mt-[42px] overflow-hidden"
+          style={{
+            width: '708px',
+            height: '168px',
+            borderRadius: '28px',
+            border: '1px solid rgba(255,255,255,0.055)',
+            background: 'linear-gradient(to bottom, rgba(28,28,28,1), rgba(18,18,18,1))',
+            boxShadow: `
+              inset 0 1px 0 rgba(255,255,255,0.05),
+              inset 0 -1px 0 rgba(255,255,255,0.02),
+              0 0 0 1px rgba(255,255,255,0.02),
+              0 1px 2px rgba(0,0,0,0.45),
+              0 14px 34px rgba(0,0,0,0.42),
+              0 38px 90px rgba(0,0,0,0.38),
+              0 70px 120px rgba(0,0,0,0.22)
+            `,
+          }}
+        >
+          <div
+            className="absolute inset-0"
+            style={{ background: 'radial-gradient(circle at top, rgba(255,255,255,0.04), transparent 60%)' }}
+          />
+
+          <textarea
+            ref={textareaRef}
+            placeholder="Describe what you want to create or learn..."
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            className="absolute resize-none bg-transparent outline-none border-none text-[16px] font-[450] leading-[24px] text-white placeholder-white/28"
+            style={{ top: '18px', left: '22px', right: '22px', height: '90px' }}
+          />
+
+          <div
+            className="absolute flex items-center justify-between"
+            style={{ bottom: '16px', left: '18px', right: '18px' }}
+          >
+            <div className="flex items-center gap-[10px]">
+              <CircleButton>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 5V19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                  <path d="M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </CircleButton>
+
+              <ToolbarIcon>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <rect x="4" y="4" width="16" height="16" rx="3" stroke="currentColor" strokeWidth="1.8" />
+                  <circle cx="9" cy="9" r="1.4" fill="currentColor" />
+                  <path d="M7 17L12 12L17 17" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </ToolbarIcon>
+
+              <ToolbarIcon>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <circle cx="8" cy="8" r="3" fill="#F24E1E" />
+                  <circle cx="16" cy="8" r="3" fill="#FF7262" />
+                  <circle cx="8" cy="16" r="3" fill="#0ACF83" />
+                  <circle cx="16" cy="16" r="3" fill="#1ABCFE" />
+                </svg>
+              </ToolbarIcon>
+
+              <Pill label="Auto" />
+              <Pill label="Default" />
+            </div>
+
+            <motion.button
+              whileHover={{ y: -1 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={handleSubmit}
+              className="flex items-center justify-center text-black"
+              style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: '50%',
+                background: '#f4f4f4',
+                boxShadow: `
+                  inset 0 1px 0 rgba(255,255,255,0.4),
+                  0 1px 2px rgba(0,0,0,0.3),
+                  0 10px 24px rgba(0,0,0,0.18)
+                `,
+              }}
+            >
+              {'\u2191'}
+            </motion.button>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="mt-[38px] flex items-center gap-3 text-[12px] text-white/42 font-[500]">
+          <span className="font-[800] italic text-white">MAX</span>
+          <div className="w-px h-4 bg-white/12" />
+          <span>Ultra coding agent with its own browser</span>
+          <div
+            className="px-[8px] py-[2px] rounded-[7px] bg-white text-black text-[11px] font-[700]"
+          >
+            New
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
+
+/* ---- Main Export ---- */
+
 export default function ChatHomeView() {
   const { signOut } = useClerk();
   const navigate = useNavigate();
@@ -495,34 +733,34 @@ export default function ChatHomeView() {
         <div className="noise-bg" />
         <div className="dot-grid" />
 
-        <div className="dashboard-page visible">
-          <header className="dashboard-top-chrome">
-            <button type="button" className="dash-icon-btn" aria-label="Toggle sidebar">
-              <PanelLeft size={18} strokeWidth={1.75} />
-            </button>
-            <div className="dash-top-right">
-              <button type="button" className="dash-context-pill">
-                <span className="dash-context-ring">
-                  <ContextRingIcon />
-                </span>
-                Context
+        {hasMessages ? (
+          <div className="dashboard-page visible" style={{ flexDirection: 'column' }}>
+            <header className="dashboard-top-chrome">
+              <button type="button" className="dash-icon-btn" aria-label="Toggle sidebar">
+                <PanelLeft size={18} strokeWidth={1.75} />
               </button>
-              <button type="button" className="dash-icon-btn" aria-label="Notifications">
-                <Bell size={17} strokeWidth={1.75} />
-              </button>
-              <button
-                type="button"
-                className="dash-avatar"
-                onClick={handleLogout}
-                aria-label="Log out"
-                title="Log out"
-              >
-                <span className="sr-only">Log out</span>
-              </button>
-            </div>
-          </header>
+              <div className="dash-top-right">
+                <button type="button" className="dash-context-pill">
+                  <span className="dash-context-ring">
+                    <ContextRingIcon />
+                  </span>
+                  Context
+                </button>
+                <button type="button" className="dash-icon-btn" aria-label="Notifications">
+                  <Bell size={17} strokeWidth={1.75} />
+                </button>
+                <button
+                  type="button"
+                  className="dash-avatar"
+                  onClick={handleLogout}
+                  aria-label="Log out"
+                  title="Log out"
+                >
+                  <span className="sr-only">Log out</span>
+                </button>
+              </div>
+            </header>
 
-          {hasMessages ? (
             <div className="dashboard-scroll-body" style={{ display: 'flex', flexDirection: 'column' }}>
               <div className="dashboard-inner" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', paddingTop: '24px' }}>
                 <div className="messages-container" style={{
@@ -550,62 +788,12 @@ export default function ChatHomeView() {
                 </div>
               </div>
             </div>
-          ) : (
-            <div className="dashboard-scroll-body">
-              <div className="dashboard-inner">
-                <div className="dash-logo">
-                  <Logo size={68} />
-                </div>
-                <div className="dash-title">What would you like to build?</div>
-
-                <InputBar
-                  placeholder="Tell me your idea..."
-                  onSend={handleSend}
-                  status={isThinking ? 'streaming' : 'ready'}
-                  disabled={isThinking}
-                  onAttach={() => console.log('Attach clicked')}
-                  attachedImages={[]}
-                  attachedFiles={[]}
-                />
-
-                <div className="pills-row">
-                  {pills.map((p, i) => (
-                    <div key={i} className="pill">
-                      {p}
-                    </div>
-                  ))}
-                  <div
-                    className="pill"
-                    style={{ background: 'rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', gap: 6 }}
-                  >
-                    <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-                      <path
-                        d="M6.5 1v2M6.5 10v2M1 6.5h2M10 6.5h2M2.8 2.8l1.4 1.4M8.8 8.8l1.4 1.4M2.8 10.2l1.4-1.4M8.8 4.2l1.4-1.4"
-                        stroke="currentColor"
-                        strokeWidth="1.3"
-                        strokeLinecap="round"
-                      />
-                    </svg>
-                  </div>
-                </div>
-
-                <div className="content-list">
-                  {EDITORIAL_ROWS.map((row, i) => (
-                    <div key={i} className="content-row">
-                      <div className="thumbnail">
-                        <DocListIcon />
-                      </div>
-                      <div className="content-info">
-                        <p className="content-title">{row.title}</p>
-                        <p className="content-meta">{row.meta}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
+          </div>
+        ) : (
+          <div className="dashboard-page visible" style={{ padding: 0 }}>
+            <EmptyLanding onSend={handleSend} isThinking={isThinking} />
+          </div>
+        )}
       </div>
     </div>
   );
