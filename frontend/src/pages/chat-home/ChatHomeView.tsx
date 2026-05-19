@@ -1,7 +1,4 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useClerk } from '@clerk/clerk-react';
-import { PanelLeft, Bell } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useChatStore } from '../../store/chatStore';
 import { MessageBubble, ThinkingIndicator } from './ChatMessages';
@@ -9,25 +6,6 @@ import ChatInputBar from './ChatInputBar';
 import VibeTypebar from './VibeTypebar';
 
 import './styles.css';
-
-function ContextRingIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden>
-      <circle cx="9" cy="9" r="7" fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="2" />
-      <circle
-        cx="9"
-        cy="9"
-        r="7"
-        fill="none"
-        stroke="#34C759"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeDasharray="33 44"
-        transform="rotate(-90 9 9)"
-      />
-    </svg>
-  );
-}
 
 function Cloud3Icon() {
   return (
@@ -167,8 +145,6 @@ function EmptyLanding({
 }
 
 export default function ChatHomeView() {
-  const { signOut } = useClerk();
-  const navigate = useNavigate();
   const { messages, isThinking, sendMessage } = useChatStore();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const hasMessages = messages.length > 0;
@@ -176,12 +152,6 @@ export default function ChatHomeView() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isThinking]);
-
-  const handleLogout = () => {
-    void signOut()
-      .then(() => navigate('/login', { replace: true }))
-      .catch(() => navigate('/login', { replace: true }));
-  };
 
   const handleSend = useCallback(
     (msg: { role: 'user'; content: string }) => {
@@ -192,7 +162,7 @@ export default function ChatHomeView() {
 
   return (
     <div className="chat-home-scope">
-      <div className="app-root">
+      <div className="app-root min-h-screen bg-black text-white flex flex-col font-sans">
         <div className="noise-bg" />
         <div className="dot-grid" />
 
@@ -200,84 +170,38 @@ export default function ChatHomeView() {
           {hasMessages ? (
             <motion.div
               key="conversation"
-              className="dashboard-page visible"
-              style={{ flexDirection: 'column' }}
+              className="flex flex-col h-screen w-full relative z-10"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.35 }}
             >
-              <header className="dashboard-top-chrome">
-                <button type="button" className="dash-icon-btn" aria-label="Toggle sidebar">
-                  <PanelLeft size={18} strokeWidth={1.75} />
-                </button>
-                <div className="dash-top-right">
-                  <button type="button" className="dash-context-pill">
-                    <span className="dash-context-ring">
-                      <ContextRingIcon />
-                    </span>
-                    Context
-                  </button>
-                  <button type="button" className="dash-icon-btn" aria-label="Notifications">
-                    <Bell size={17} strokeWidth={1.75} />
-                  </button>
-                  <button
-                    type="button"
-                    className="dash-avatar"
-                    onClick={handleLogout}
-                    aria-label="Log out"
-                    title="Log out"
-                  >
-                    <span className="sr-only">Log out</span>
-                  </button>
+              <div className="flex-1 overflow-y-auto px-4 pt-20">
+                <div className="max-w-3xl mx-auto">
+                  {messages.map((msg, i) => (
+                    <MessageBubble key={i} message={msg} />
+                  ))}
+                  {isThinking && <ThinkingIndicator />}
+                  <div ref={messagesEndRef} />
                 </div>
-              </header>
+              </div>
 
-              <div className="dashboard-scroll-body" style={{ display: 'flex', flexDirection: 'column' }}>
-                <div
-                  className="dashboard-inner"
-                  style={{
-                    flex: 1,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'flex-end',
-                    paddingTop: '24px',
-                  }}
-                >
-                  <div
-                    className="messages-container"
-                    style={{
-                      flex: 1,
-                      overflow: 'auto',
-                      padding: '0 24px',
-                      maxWidth: '720px',
-                      margin: '0 auto',
-                      width: '100%',
-                    }}
-                  >
-                    {messages.map((msg, i) => (
-                      <MessageBubble key={i} message={msg} />
-                    ))}
-                    {isThinking && <ThinkingIndicator />}
-                    <div ref={messagesEndRef} />
-                  </div>
-                  <div style={{ padding: '16px 24px 24px', maxWidth: '720px', margin: '0 auto', width: '100%' }}>
-                    <ChatInputBar
-                      placeholder="Send a message..."
-                      onSend={handleSend}
-                      status={isThinking ? 'streaming' : 'ready'}
-                      disabled={isThinking}
-                      autoFocus
-                    />
-                  </div>
+              <div className="px-4 pb-6">
+                <div className="max-w-3xl mx-auto">
+                  <ChatInputBar
+                    placeholder="Make updates to your app..."
+                    onSend={handleSend}
+                    status={isThinking ? 'streaming' : 'ready'}
+                    disabled={isThinking}
+                    autoFocus
+                  />
                 </div>
               </div>
             </motion.div>
           ) : (
             <motion.div
               key="landing"
-              className="dashboard-page visible"
-              style={{ padding: 0 }}
+              className="absolute inset-0 z-10"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}

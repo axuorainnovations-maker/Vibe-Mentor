@@ -8,8 +8,8 @@ router.post('/', optionalAuth, async (req: AuthRequest, res: Response) => {
     const { message, history } = req.body;
     if (!message) return res.status(400).json({ error: 'Message is required' });
 
-    const openRouterKey = process.env.OPENROUTER_API_KEY;
-    if (!openRouterKey || openRouterKey === 'your-openrouter-api-key') {
+    const openRouterKey = process.env.OPENROUTER_API_KEY?.trim();
+    if (!openRouterKey || openRouterKey === 'your-openrouter-api-key' || !openRouterKey.startsWith('sk-')) {
       return res.status(200).json({
         role: 'assistant',
         content: `Hey! I'm your Vibe Mentor AI assistant. I can help you build projects, answer questions, and guide your learning journey.\n\nTo get started, try telling me what you'd like to build or learn about!`,
@@ -37,7 +37,14 @@ router.post('/', optionalAuth, async (req: AuthRequest, res: Response) => {
       }),
     });
 
-    const result: any = await response.json();
+    const result: { choices?: Array<{ message?: { content?: string } }>; error?: { message?: string } } =
+      await response.json();
+
+    if (!response.ok) {
+      const apiError = result.error?.message || 'OpenRouter request failed';
+      return res.status(response.status).json({ error: apiError });
+    }
+
     const content = result.choices?.[0]?.message?.content || 'Sorry, I could not generate a response.';
 
     res.json({ role: 'assistant', content });

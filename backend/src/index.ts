@@ -13,6 +13,12 @@ import chatRoutes from './routes/chat';
 
 dotenv.config();
 
+const openRouterKey = process.env.OPENROUTER_API_KEY?.trim();
+const openRouterReady =
+  !!openRouterKey &&
+  openRouterKey !== 'your-openrouter-api-key' &&
+  openRouterKey.startsWith('sk-');
+
 export const prisma = new PrismaClient();
 
 const app = express();
@@ -44,4 +50,9 @@ app.use((err: any, _req: express.Request, res: express.Response, _next: express.
 
 app.listen(PORT, () => {
   console.log(`Vibe Mentor API running on port ${PORT}`);
+  console.log(
+    openRouterReady
+      ? 'OpenRouter: configured'
+      : 'OpenRouter: NOT configured — chat will use fallback responses. Set OPENROUTER_API_KEY in backend/.env and restart.',
+  );
 });

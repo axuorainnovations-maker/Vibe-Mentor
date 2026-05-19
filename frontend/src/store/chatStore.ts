@@ -3,6 +3,7 @@ import { create } from 'zustand';
 export interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
+  thoughtSeconds?: number;
 }
 
 interface ChatState {
@@ -19,12 +20,15 @@ export const useChatStore = create<ChatState>((set, get) => ({
   error: null,
 
   sendMessage: async (content: string) => {
+    const history = get().messages;
     const userMessage: ChatMessage = { role: 'user', content };
-    set((state) => ({
-      messages: [...state.messages, userMessage],
+    const startedAt = Date.now();
+
+    set({
+      messages: [...history, userMessage],
       isThinking: true,
       error: null,
-    }));
+    });
 
     try {
       const res = await fetch('/api/chat', {
@@ -32,28 +36,38 @@ export const useChatStore = create<ChatState>((set, get) => ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: content,
-          history: get().messages.map((m) => ({ role: m.role, content: m.content })),
+          history: history.map((m) => ({ role: m.role, content: m.content })),
         }),
       });
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to get response');
 
-      set((state) => ({
-        messages: [...state.messages, { role: 'assistant', content: data.content }],
-        isThinking: false,
-      }));
-    } catch (err: any) {
+      const thoughtSeconds = Math.max(0.1, (Date.now() - startedAt) / 1000);
+
       set((state) => ({
         messages: [
           ...state.messages,
           {
             role: 'assistant',
-            content: `Sorry, something went wrong: ${err.message}`,
+            content: data.content,
+            thoughtSeconds: Number(thoughtSeconds.toFixed(1)),
           },
         ],
         isThinking: false,
-        error: err.message,
+      }));
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Something went wrong';
+      set((state) => ({
+        messages: [
+          ...state.messages,
+          {
+            role: 'assistant',
+            content: `Sorry, something went wrong: ${message}`,
+          },
+        ],
+        isThinking: false,
+        error: message,
       }));
     }
   },
