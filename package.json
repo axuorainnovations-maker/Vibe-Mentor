@@ -5,5 +5,12 @@
     "dev": "cd frontend && npm run dev",
     "build": "cd frontend && npm run build",
     "preview": "cd frontend && npm run preview"
+  },
+  "dependencies": {
+    "@clerk/clerk-react": "^5.61.3",
+    "framer-motion": "^12.39.0",
+    "lucide-react": "^1.16.0",
+    "react": "^19.2.6",
+    "react-router-dom": "^7.15.1"
   }
 }
