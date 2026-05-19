@@ -1,0 +1,5 @@
+{
+  "name": "vibe-mentor",
+  "private": true,
+  "workspaces": ["frontend"]
+}
