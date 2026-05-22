@@ -4,6 +4,7 @@ import { useChatStore } from '../../store/chatStore';
 import { MessageBubble, ThinkingIndicator } from './ChatMessages';
 import ChatInputBar from './ChatInputBar';
 import VibeTypebar from './VibeTypebar';
+import ManusSidebar from './ManusSidebar';
 
 import './styles.css';
 
@@ -47,20 +48,6 @@ function Cloud3Icon() {
   );
 }
 
-function SidebarLogo() {
-  return (
-    <div className="w-[31px] h-[31px] rounded-[9px] bg-[#1a1a1a] border border-white/[0.06] flex items-center justify-center">
-      <div style={{ transform: 'scale(0.6)', opacity: 0.9 }}>
-        <Cloud3Icon />
-      </div>
-    </div>
-  );
-}
-
-function SidebarIcon() {
-  return <div className="w-[30px] h-[30px] rounded-[10px] hover:bg-white/[0.045] transition-all duration-150" />;
-}
-
 function EmptyLanding({
   onSend,
   isThinking,
@@ -79,20 +66,7 @@ function EmptyLanding({
 
   return (
     <div className="flex h-full w-full" style={{ background: '#0b0b0c' }}>
-      <aside
-        className="w-[58px] flex flex-col items-center py-3 relative"
-        style={{ background: '#101011', borderRight: '1px solid rgba(255,255,255,0.045)' }}
-      >
-        <SidebarLogo />
-        <div className="mt-8 flex flex-col gap-[22px] text-white/56">
-          <SidebarIcon />
-          <SidebarIcon />
-          <SidebarIcon />
-        </div>
-        <div className="absolute bottom-4">
-          <SidebarIcon />
-        </div>
-      </aside>
+      <ManusSidebar />
 
       <main className="flex-1 flex flex-col items-center" style={{ paddingTop: '200px', background: '#0b0b0c' }}>
         <div className="relative">
