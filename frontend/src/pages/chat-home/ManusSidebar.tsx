@@ -80,9 +80,9 @@ const chatHistory = [
 
 export default function ManusSidebar() {
   return (
-    <aside className="w-[240px] flex flex-col shrink-0" style={{ background: '#161618', borderRight: '1px solid rgba(255,255,255,0.045)' }}>
-      <div className="h-[52px] flex items-center justify-between px-3 pl-[14px]">
-        <div className="flex items-center gap-[7px] font-medium text-[15px] tracking-[-0.01em] text-white/88">
+    <aside className="w-[256px] flex flex-col shrink-0 bg-[#151517] border-r border-[#1f1f22]">
+      <div className="h-[52px] flex items-center justify-between px-3 pl-4">
+        <div className="flex items-center gap-[7px] text-[14px] font-medium text-[#e1e1e4]">
           <WrenchIcon />
           <span>manus</span>
         </div>
@@ -106,7 +106,7 @@ export default function ManusSidebar() {
         {chatHistory.map((title) => (
           <div
             key={title}
-            className="flex items-center gap-[10px] px-[10px] py-[5px] rounded-[6px] text-[13.5px] text-white/55 hover:bg-white/[0.045] hover:text-white/75 cursor-pointer transition-all duration-150"
+            className="flex items-center gap-[10px] px-[10px] py-[5px] rounded-[6px] text-[14px] text-[#78787f] hover:text-[#c7c7cc] hover:bg-[#1c1c1f] cursor-pointer transition-all duration-150"
           >
             <HashIcon />
             <span className="truncate">{title}</span>
@@ -114,12 +114,12 @@ export default function ManusSidebar() {
         ))}
       </div>
 
-      <div className="mt-auto px-3 py-[10px]">
-        <div className="flex items-center gap-[9px] px-[7px] py-[6px] rounded-[6px] hover:bg-white/[0.035] cursor-pointer transition-all duration-150">
-          <div className="w-[26px] h-[26px] rounded-full bg-white/[0.08] flex items-center justify-center text-white/70 text-[12px] font-medium">
+      <div className="mt-auto px-3 py-[10px] border-t border-[#1f1f22]">
+        <div className="flex items-center gap-[9px] px-[7px] py-[6px] rounded-[6px] hover:bg-[#1c1c1f] cursor-pointer transition-all duration-150">
+          <div className="w-[26px] h-[26px] rounded-full bg-[#252528] flex items-center justify-center text-[#78787f] text-[12px] font-medium">
             {'\u03B1'}
           </div>
-          <span className="text-[13px] text-white/60 font-medium">axuora.innovations</span>
+          <span className="text-[13px] text-[#a1a1a8] font-medium">axuora.innovations</span>
         </div>
       </div>
     </aside>
@@ -141,16 +141,16 @@ function NavItem({
 }) {
   return (
     <div
-      className={`flex items-center gap-[10px] px-[10px] rounded-[6px] cursor-pointer text-[13.5px] transition-all duration-150 ${
-        active ? 'text-white bg-white/[0.07]' : 'text-white/55 hover:text-white/75 hover:bg-white/[0.035]'
+      className={`flex items-center gap-[10px] px-[10px] rounded-[6px] cursor-pointer text-[14px] transition-all duration-150 ${
+        active ? 'text-[#e1e1e4] bg-white/[0.07]' : 'text-[#78787f] hover:text-[#c7c7cc] hover:bg-[#1c1c1f]'
       } ${tight ? 'py-[5px]' : 'py-[7px]'}`}
     >
-      <span className="w-[18px] h-[18px] flex items-center justify-center shrink-0" style={{ color: active ? 'rgba(255,255,255,0.8)' : 'rgba(255,255,255,0.35)' }}>
+      <span className={`w-[18px] h-[18px] flex items-center justify-center shrink-0 ${active ? 'text-[#a1a1a8]' : 'text-[#55555b]'}`}>
         {icon}
       </span>
       <span className="font-medium">{label}</span>
       {badge && (
-        <span className="ml-auto text-[11px] font-medium px-[7px] py-[1px] rounded-[5px]" style={{ background: 'rgba(59,130,246,0.15)', color: '#60A5FA' }}>
+        <span className="ml-auto text-[11px] font-medium px-[7px] py-[1px] rounded-[5px] text-[#60A5FA]" style={{ background: 'rgba(59,130,246,0.12)' }}>
           {badge}
         </span>
       )}
@@ -160,7 +160,7 @@ function NavItem({
 
 function SectionHeader({ label }: { label: string }) {
   return (
-    <div className="mt-[18px] mb-[2px] px-[14px] py-[2px] text-[11.5px] font-medium text-white/30 flex items-center justify-between tracking-[0.01em]">
+    <div className="mt-[18px] mb-[2px] px-[14px] py-[2px] text-[12px] font-medium text-[#55555b] flex items-center justify-between tracking-[0.02em]">
       <span>{label.toUpperCase()}</span>
     </div>
   );
