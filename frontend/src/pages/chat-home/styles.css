@@ -8,40 +8,10 @@
 
 .chat-home-scope .app-root {
   font-family: -apple-system, 'SF Pro Display', 'Inter', BlinkMacSystemFont, sans-serif;
-  background: #1a1a1a;
+  background: #000000;
   min-height: 100vh;
   position: relative;
   overflow: hidden;
-}
-
-.chat-home-scope .noise-bg {
-  position: fixed;
-  inset: 0;
-  background:
-    radial-gradient(ellipse at 30% 20%, rgba(60, 60, 60, 0.4) 0%, transparent 60%),
-    radial-gradient(ellipse at 70% 80%, rgba(40, 40, 40, 0.3) 0%, transparent 60%),
-    #1c1c1c;
-  z-index: 0;
-}
-
-.chat-home-scope .noise-bg::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E");
-  background-size: 200px 200px;
-  opacity: 0.5;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.chat-home-scope .dot-grid {
-  position: fixed;
-  inset: 0;
-  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.07) 1px, transparent 1px);
-  background-size: 28px 28px;
-  z-index: 1;
-  pointer-events: none;
 }
 
 .chat-home-scope .dashboard-page {
@@ -606,6 +576,11 @@
     transform: scale(1);
     opacity: 1;
   }
+}
+
+@keyframes agentPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.12); opacity: 0.75; }
 }
 
 /* ── Vibe typebar (hero + compact) ── */

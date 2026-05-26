@@ -3,12 +3,12 @@ import { create } from 'zustand';
 export interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
+  thinking?: string;
   thoughtSeconds?: number;
 }
 
 interface ChatState {
   messages: ChatMessage[];
-  isThinking: boolean;
   error: string | null;
   sendMessage: (content: string) => Promise<void>;
   clearChat: () => void;
@@ -16,19 +16,15 @@ interface ChatState {
 
 export const useChatStore = create<ChatState>((set, get) => ({
   messages: [],
-  isThinking: false,
   error: null,
 
   sendMessage: async (content: string) => {
     const history = get().messages;
     const userMessage: ChatMessage = { role: 'user', content };
+    const pendingMessage: ChatMessage = { role: 'assistant', content: '', thinking: '' };
     const startedAt = Date.now();
 
-    set({
-      messages: [...history, userMessage],
-      isThinking: true,
-      error: null,
-    });
+    set({ messages: [...history, userMessage, pendingMessage], error: null });
 
     try {
       const res = await fetch('/api/chat', {
@@ -45,30 +41,34 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
       const thoughtSeconds = Math.max(0.1, (Date.now() - startedAt) / 1000);
 
-      set((state) => ({
-        messages: [
-          ...state.messages,
-          {
+      set((state) => {
+        const msgs = [...state.messages];
+        const idx = msgs.length - 1;
+        if (idx >= 0 && msgs[idx].role === 'assistant' && !msgs[idx].content) {
+          msgs[idx] = {
             role: 'assistant',
+            thinking: data.thinking,
             content: data.content,
             thoughtSeconds: Number(thoughtSeconds.toFixed(1)),
-          },
-        ],
-        isThinking: false,
-      }));
+          };
+        }
+        return { messages: msgs };
+      });
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Something went wrong';
-      set((state) => ({
-        messages: [
-          ...state.messages,
-          {
+      set((state) => {
+        const msgs = [...state.messages];
+        const idx = msgs.length - 1;
+        if (idx >= 0 && msgs[idx].role === 'assistant' && !msgs[idx].content) {
+          msgs[idx] = {
             role: 'assistant',
+            thinking: 'I encountered an error while processing your request.',
             content: `Sorry, something went wrong: ${message}`,
-          },
-        ],
-        isThinking: false,
-        error: message,
-      }));
+            thoughtSeconds: 0.1,
+          };
+        }
+        return { messages: msgs, error: message };
+      });
     }
   },
 

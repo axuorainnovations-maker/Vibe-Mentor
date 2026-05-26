@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useChatStore } from '../../store/chatStore';
-import { MessageBubble, ThinkingIndicator } from './ChatMessages';
-import ChatInputBar from './ChatInputBar';
+import { MessageBubble } from './ChatMessages';
+import { AgentMessage } from './AgentMessage';
 import VibeTypebar from './VibeTypebar';
-import ManusSidebar from './ManusSidebar';
+import VibeMentorSidebar from './VibeMentorSidebar';
 
 import './styles.css';
 
@@ -65,10 +65,10 @@ function EmptyLanding({
   }, [input, isThinking, onSend]);
 
   return (
-    <div className="flex h-full w-full" style={{ background: '#0b0b0c' }}>
-      <ManusSidebar />
+    <div className="flex h-full w-full" style={{ background: '#000' }}>
+      <VibeMentorSidebar />
 
-      <main className="flex-1 flex flex-col items-center" style={{ paddingTop: '200px', background: '#0b0b0c' }}>
+      <main className="flex-1 flex flex-col items-center" style={{ paddingTop: '200px', background: '#000' }}>
         <div className="relative">
           <div className="absolute inset-0 bg-white/[0.035] blur-3xl rounded-full scale-[2]" />
           <div className="relative flex items-center justify-center">
@@ -119,9 +119,12 @@ function EmptyLanding({
 }
 
 export default function ChatHomeView() {
-  const { messages, isThinking, sendMessage } = useChatStore();
+  const { messages, sendMessage } = useChatStore();
+  const [input, setInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const hasMessages = messages.length > 0;
+  const last = messages[messages.length - 1];
+  const isThinking = last?.role === 'assistant' && !last.content;
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -134,11 +137,17 @@ export default function ChatHomeView() {
     [sendMessage],
   );
 
+  const handleSubmit = useCallback(() => {
+    const trimmed = input.trim();
+    if (!trimmed || isThinking) return;
+    void sendMessage(trimmed);
+    setInput('');
+  }, [input, isThinking, sendMessage]);
+
   return (
     <div className="chat-home-scope">
       <div className="app-root min-h-screen bg-black text-white flex flex-col font-sans">
-        <div className="noise-bg" />
-        <div className="dot-grid" />
+
 
         <AnimatePresence mode="wait">
           {hasMessages ? (
@@ -150,26 +159,60 @@ export default function ChatHomeView() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.35 }}
             >
-              <div className="flex-1 overflow-y-auto px-4 pt-20">
-                <div className="max-w-3xl mx-auto">
-                  {messages.map((msg, i) => (
-                    <MessageBubble key={i} message={msg} />
-                  ))}
-                  {isThinking && <ThinkingIndicator />}
+              {/* Top header */}
+              <header
+                style={{
+                  position: 'fixed',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '68px',
+                  background: 'transparent',
+                  zIndex: 10,
+                }}
+              >
+                <div
+                  style={{
+                    position: 'absolute',
+                    left: '26px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    fontFamily: '-apple-system, BlinkMacSystemFont, "Inter", "SF Pro Text", system-ui, sans-serif',
+                    fontSize: '17px',
+                    fontWeight: 400,
+                    lineHeight: 1,
+                    color: '#e8e8e8',
+                    letterSpacing: '0.15px',
+                  }}
+                >
+                  Hello
+                </div>
+              </header>
+
+              {/* Messages */}
+              <div className="flex-1 overflow-y-auto" style={{ padding: '60px 24px 24px' }}>
+                <div style={{ maxWidth: '720px', margin: '0 auto' }}>
+                  {messages.map((msg, i) =>
+                    msg.role === 'user' ? (
+                      <MessageBubble key={i} message={msg} />
+                    ) : (
+                      <AgentMessage key={i} message={msg} />
+                    ),
+                  )}
                   <div ref={messagesEndRef} />
                 </div>
               </div>
 
-              <div className="px-4 pb-6">
-                <div className="max-w-3xl mx-auto">
-                  <ChatInputBar
-                    placeholder="Make updates to your app..."
-                    onSend={handleSend}
-                    status={isThinking ? 'streaming' : 'ready'}
-                    disabled={isThinking}
-                    autoFocus
-                  />
-                </div>
+              <div style={{ padding: '12px 24px 28px', display: 'flex', justifyContent: 'center' }}>
+                <VibeTypebar
+                  variant="compact"
+                  value={input}
+                  onChange={setInput}
+                  onSubmit={handleSubmit}
+                  placeholder="Make updates to your app..."
+                  disabled={isThinking}
+                  isStreaming={isThinking}
+                />
               </div>
             </motion.div>
           ) : (
